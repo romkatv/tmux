@@ -1065,6 +1065,8 @@ screen_write_linefeed(struct screen_write_ctx *ctx, int wrapped, u_int bg)
 		ctx->scrolled++;
 	} else if (s->cy < screen_size_y(s) - 1)
 		screen_write_set_cursor(ctx, -1, s->cy + 1);
+
+	screen_write_collect_flush(ctx, 0);
 }
 
 /* Scroll up. */
