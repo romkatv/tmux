@@ -209,6 +209,8 @@ tty_block_maybe(struct tty *tty)
 	size_t		 size = EVBUFFER_LENGTH(tty->out);
 	struct timeval	 tv = { .tv_usec = TTY_BLOCK_INTERVAL };
 
+	return (0);
+
 	if (size < TTY_BLOCK_START(tty))
 		return (0);
 
