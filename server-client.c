@@ -1265,11 +1265,17 @@ server_client_loop(void)
 	struct window_pane	*wp;
 	struct winlink		*wl;
 	struct session		*s;
+	struct screen		*sc;
 	int			 focus, attached, resize;
 
 	TAILQ_FOREACH(c, &clients, entry) {
 		server_client_check_exit(c);
 		if (c->session != NULL) {
+			if (c->flags & (CLIENT_CONTROL|CLIENT_SUSPENDED))
+				continue;
+			sc = c->session->curw->window->active->screen;
+			if ((c->tty.mode & MODE_ALT_SCREEN) != (sc->mode & MODE_ALT_SCREEN))
+				tty_update_mode(&c->tty, c->tty.mode ^ MODE_ALT_SCREEN, sc);
 			server_client_check_redraw(c);
 			server_client_reset_state(c);
 		}

@@ -320,7 +320,7 @@ tty_start_tty(struct tty *tty)
 			tcflush(tty->fd, TCIOFLUSH);
 	}
 
-	tty_putcode(tty, TTYC_SMCUP);
+	// tty_putcode(tty, TTYC_SMCUP);
 
 	tty_putcode(tty, TTYC_SMKX);
 	tty_putcode(tty, TTYC_CLEAR);
@@ -422,7 +422,8 @@ tty_stop_tty(struct tty *tty)
 
 	if (tty_use_margin(tty))
 		tty_raw(tty, "\033[?69l"); /* DECLRMM */
-	tty_raw(tty, tty_term_string(tty->term, TTYC_RMCUP));
+	if (tty->mode & MODE_ALT_SCREEN)
+		tty_raw(tty, tty_term_string(tty->term, TTYC_RMCUP));
 
 	setblocking(tty->fd, 1);
 }
@@ -669,6 +670,12 @@ tty_update_mode(struct tty *tty, int mode, struct screen *s)
 		mode &= ~MODE_CURSOR;
 
 	changed = mode ^ tty->mode;
+	if (changed & MODE_ALT_SCREEN) {
+		if (mode & MODE_ALT_SCREEN)
+			tty_putcode(tty, TTYC_SMCUP);
+		else
+			tty_putcode(tty, TTYC_RMCUP);
+	}
 	if (changed & MODE_BLINKING) {
 		if (tty_term_has(tty->term, TTYC_CVVIS))
 			tty_putcode(tty, TTYC_CVVIS);
