@@ -1040,6 +1040,7 @@ window_pane_alternate_on(struct window_pane *wp, struct grid_cell *gc,
 	wp->base.grid->flags &= ~GRID_HISTORY;
 
 	wp->flags |= PANE_REDRAW;
+	s->mode |= MODE_ALT_SCREEN;
 }
 
 /* Exit alternate screen mode and restore the copied grid. */
@@ -1094,6 +1095,7 @@ window_pane_alternate_off(struct window_pane *wp, struct grid_cell *gc,
 	wp->saved_grid = NULL;
 
 	wp->flags |= PANE_REDRAW;
+	s->mode &= ~MODE_ALT_SCREEN;
 }
 
 void
