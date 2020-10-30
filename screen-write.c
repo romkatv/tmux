@@ -1063,10 +1063,9 @@ screen_write_linefeed(struct screen_write_ctx *ctx, int wrapped, u_int bg)
 		grid_view_scroll_region_up(gd, s->rupper, s->rlower, bg);
 		screen_write_collect_scroll(ctx);
 		ctx->scrolled++;
+		screen_write_collect_flush(ctx, wrapped ? 2 : 0);
 	} else if (s->cy < screen_size_y(s) - 1)
 		screen_write_set_cursor(ctx, -1, s->cy + 1);
-
-	screen_write_collect_flush(ctx, 0);
 }
 
 /* Scroll up. */
@@ -1252,6 +1251,8 @@ screen_write_collect_flush(struct screen_write_ctx *ctx, int scroll_only)
 	u_int					 y, cx, cy, items = 0;
 	struct tty_ctx				 ttyctx;
 	size_t					 written = 0;
+	u_int last_ci_y				 = 0;
+	struct screen_write_collect_item	*last_ci = NULL;
 
 	if (ctx->scrolled != 0) {
 		log_debug("%s: scrolled %u (region %u-%u)", __func__,
@@ -1267,7 +1268,7 @@ screen_write_collect_flush(struct screen_write_ctx *ctx, int scroll_only)
 	ctx->scrolled = 0;
 	ctx->bg = 8;
 
-	if (scroll_only)
+	if (scroll_only == 1)
 		return;
 
 	cx = s->cx; cy = s->cy;
@@ -1285,8 +1286,40 @@ screen_write_collect_flush(struct screen_write_ctx *ctx, int scroll_only)
 			written += ci->used;
 
 			TAILQ_REMOVE(&ctx->list[y].items, ci, entry);
-			free(ci);
+			if (scroll_only == 2) {
+				/* This code path is taken when printing a line that goes all the
+				   way to the right border of the screen and wraps around. We don't
+				   yet have the continuation of this line. To avoid a hard wrap, we
+				   keep the line and print it once again when the continuation
+				   arrives. The only place where screen_write_collect_flush() is
+				   invoked with scroll_only = 2 is screen_write_linefeed().
+
+				   This doesn't fix all instances of hard wrapping though. For
+				   example, this will hard-wrap (Zsh script):
+
+				     () {
+				       emulate -L zsh
+				       local line=${(pl:$COLUMNS::x:)}
+				       repeat 5; do
+				         print -rn -- $line
+				         sleep 1
+				       done
+				       print
+				     }
+
+				   This hard-wraps even in the unpatched tmux. I haven't tried
+				   fixing it.
+				*/
+				free(last_ci);
+				last_ci = ci;
+				last_ci_y = y;
+			} else {
+				free(ci);
+			}
 		}
+	}
+	if (last_ci) {
+		TAILQ_INSERT_TAIL(&ctx->list[last_ci_y].items, last_ci, entry);
 	}
 	s->cx = cx; s->cy = cy;
 
