@@ -1199,7 +1199,11 @@ screen_write_clearscreen(struct screen_write_ctx *ctx, u_int bg)
 void
 screen_write_clearhistory(struct screen_write_ctx *ctx)
 {
+	struct tty_ctx	 ttyctx;
+
+	screen_write_initctx(ctx, &ttyctx);
 	grid_clear_history(ctx->s->grid);
+	tty_write(tty_cmd_clearscrollback, &ttyctx);
 }
 
 /* Clear a collected line. */
