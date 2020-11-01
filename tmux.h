@@ -2000,6 +2000,7 @@ void	tty_cmd_clearendofline(struct tty *, const struct tty_ctx *);
 void	tty_cmd_clearendofscreen(struct tty *, const struct tty_ctx *);
 void	tty_cmd_clearline(struct tty *, const struct tty_ctx *);
 void	tty_cmd_clearscreen(struct tty *, const struct tty_ctx *);
+void	tty_cmd_clearscrollback(struct tty *, const struct tty_ctx *);
 void	tty_cmd_clearstartofline(struct tty *, const struct tty_ctx *);
 void	tty_cmd_clearstartofscreen(struct tty *, const struct tty_ctx *);
 void	tty_cmd_deletecharacter(struct tty *, const struct tty_ctx *);

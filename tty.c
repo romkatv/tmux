@@ -1803,6 +1803,12 @@ tty_cmd_clearscreen(struct tty *tty, const struct tty_ctx *ctx)
 }
 
 void
+tty_cmd_clearscrollback(struct tty *tty, const struct tty_ctx *ctx)
+{
+	tty_puts(tty, "\033[3J");
+}
+
+void
 tty_cmd_alignmenttest(struct tty *tty, const struct tty_ctx *ctx)
 {
 	struct window_pane	*wp = ctx->wp;
