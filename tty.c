@@ -638,7 +638,6 @@ tty_set_italics(struct tty *tty)
 void
 tty_set_title(struct tty *tty, const char *title)
 {
-	return;  
 	if (!tty_term_has(tty->term, TTYC_TSL) ||
 	    !tty_term_has(tty->term, TTYC_FSL))
 		return;
