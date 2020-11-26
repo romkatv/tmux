@@ -1902,7 +1902,7 @@ void
 tty_cmd_rawstring(struct tty *tty, const struct tty_ctx *ctx)
 {
 	tty_add(tty, ctx->ptr, ctx->num);
-	tty_invalidate(tty);
+	// tty_invalidate(tty);
 }
 
 static void
