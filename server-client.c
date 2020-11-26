@@ -1697,9 +1697,11 @@ server_client_set_title(struct client *c)
 	format_defaults(ft, c, NULL, NULL, NULL);
 
 	title = format_expand_time(ft, template);
-	free(c->title);
-	c->title = xstrdup(title);
-	tty_set_title(&c->tty, c->title);
+	if (c->title == NULL || strcmp(title, c->title) != 0) {
+		free(c->title);
+		c->title = xstrdup(title);
+		tty_set_title(&c->tty, c->title);
+	}
 	free(title);
 
 	format_free(ft);
