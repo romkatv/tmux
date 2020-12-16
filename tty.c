@@ -1970,7 +1970,7 @@ tty_invalidate(struct tty *tty)
 			tty_puts(tty, "\033[?69h"); /* DECLRMM */
 		tty_putcode(tty, TTYC_SGR0);
 
-		tty->mode = ALL_MODES;
+		tty->mode |= ALL_MODES & ~MODE_ALT_SCREEN;
 		tty_update_mode(tty, MODE_CURSOR, NULL);
 
 		tty_cursor(tty, 0, 0);
